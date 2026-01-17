@@ -17,7 +17,7 @@ public class Movement : MonoBehaviour
     private float horizontalInput;
     private bool isGrounded;
     private bool isFacingRight = true;
-
+    private bool isDead = false; // New flag to stop movement
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -26,6 +26,7 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
+        if (isDead) return; // 2. IGNORE INPUT if dead
         // Input
         horizontalInput = Input.GetAxisRaw("Horizontal");
 
@@ -41,6 +42,7 @@ public class Movement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (isDead) return; // 1. STOP MOVING if dead
         // Ground check
         isGrounded = Physics2D.OverlapCircle(
             groundCheck.position,
@@ -54,6 +56,7 @@ public class Movement : MonoBehaviour
 
     void PerformJump()
     {
+        if (isDead) return; // 3. IGNORE JUMP if dead
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
     }
 
@@ -81,12 +84,29 @@ public class Movement : MonoBehaviour
         }
     }
 
-    void OnDrawGizmos()
+    public void Die()
     {
-        if (groundCheck != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
-        }
+        if (isDead) return; // Prevent dying twice
+        isDead = true;
+
+        Debug.Log("Player Died!");
+
+        // Stop all physics movement immediately
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0; // Optional: Stop falling
+
+        // Play the Animation
+        if (anim != null) anim.SetTrigger("Death");
+
+        // Destroy player after 1 second (adjust time to match your animation length)
+        Destroy(gameObject, 1.20f);
     }
+        void OnDrawGizmos()
+        {
+            if (groundCheck != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+            }
+        }
 }

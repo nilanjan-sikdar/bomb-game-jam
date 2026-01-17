@@ -7,51 +7,81 @@ public class Movement : MonoBehaviour
     public float jumpPower = 12f;
 
     [Header("Ground Detection")]
-    public Transform groundCheck;    // Assign an empty GameObject located at the player's feet
+    public Transform groundCheck;
     public float groundCheckRadius = 0.2f;
-    public LayerMask groundLayer;    // Select the layer used for your ground/platforms
+    public LayerMask groundLayer;
 
     private Rigidbody2D rb;
+    private Animator anim;
+
     private float horizontalInput;
     private bool isGrounded;
+    private bool isFacingRight = true;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
     void Update()
     {
-        // 1. Capture Input (Processed every frame for responsiveness)
-        // GetAxisRaw makes movement snappy (stops immediately when key is released)
+        // Input
         horizontalInput = Input.GetAxisRaw("Horizontal");
 
-        // 2. Handle Jumping
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             PerformJump();
         }
+
+        // Animation + Flip
+        UpdateAnimations();
+        FlipSprite();
     }
 
     void FixedUpdate()
     {
-        // 3. Apply Physics (Processed in fixed time intervals)
+        // Ground check
+        isGrounded = Physics2D.OverlapCircle(
+            groundCheck.position,
+            groundCheckRadius,
+            groundLayer
+        );
 
-        // Move the player: Keep current Y velocity, change X velocity
+        // Movement
         rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
-
-        // Check if player is touching the ground
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
     void PerformJump()
     {
-        // Reset Y velocity before jumping to ensure consistent jump height
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
     }
 
-    // Visualization for the editor to help you adjust the ground check
-    private void OnDrawGizmos()
+    void UpdateAnimations()
+    {
+        // Run / Idle
+        anim.SetFloat("Speed", Mathf.Abs(horizontalInput));
+
+        // Jumping state (TRUE when NOT grounded)
+        anim.SetBool("isJumping", !isGrounded);
+
+        // Vertical velocity (useful for jump/fall blend trees)
+        anim.SetFloat("yVelocity", rb.linearVelocity.y);
+    }
+
+    void FlipSprite()
+    {
+        if (isFacingRight && horizontalInput < 0f ||
+            !isFacingRight && horizontalInput > 0f)
+        {
+            isFacingRight = !isFacingRight;
+            Vector3 scale = transform.localScale;
+            scale.x *= -1f;
+            transform.localScale = scale;
+        }
+    }
+
+    void OnDrawGizmos()
     {
         if (groundCheck != null)
         {

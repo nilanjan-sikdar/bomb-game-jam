@@ -99,7 +99,7 @@ public class Movement : MonoBehaviour
         if (anim != null) anim.SetTrigger("Death");
 
         // Destroy player after 1 second (adjust time to match your animation length)
-        Destroy(gameObject, 1.20f);
+        Destroy(gameObject, 1.3f);
     }
         void OnDrawGizmos()
         {

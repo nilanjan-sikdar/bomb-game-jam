@@ -102,7 +102,7 @@ ScriptedImporter:
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
   importFileNodeState: 1
-  platformSettingsDirtyTick: 639042582491707069
+  platformSettingsDirtyTick: 639042910052631876
   textureAssetName: 
   singleSpriteImportData:
   - name: 
@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: Obstacles for OHISS
     originalName: 
-    pivot: {x: 0.51265824, y: -0.0754717}
+    pivot: {x: 0.49689442, y: -0.089108914}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,9 +137,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 158
-      height: 106
-    spriteID: b52df0d9b4971af438e1505f99d5e6a2
+      width: 161
+      height: 101
+    spriteID: 9b8e4cfbb75eb20478ea56f586cebc53
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -167,11 +167,11 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 9
-        y: 8
-        width: 158
-        height: 106
-      spriteId: b52df0d9b4971af438e1505f99d5e6a2
+        x: 10
+        y: 9
+        width: 161
+        height: 101
+      spriteId: 9b8e4cfbb75eb20478ea56f586cebc53
     linkedCells: []
     tileCells: []
     tileSetIndex: 0

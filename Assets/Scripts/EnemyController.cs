@@ -10,12 +10,14 @@ public class EnemyController : MonoBehaviour
     public Transform eyePivot;
     public float viewDistance = 5f;
 
-    // CHANGED: We renamed this to hitLayers so it matches your logic below
     // Set this to "Everything" in Inspector so walls block the laser
     public LayerMask hitLayers;
 
     public float scanSpeed = 3f;
     public float scanWidth = 45f;
+
+    // --- NEW: Add the Line Renderer Variable ---
+    public LineRenderer laserLine;
 
     private Vector3 startPos;
     private Rigidbody2D rb;
@@ -29,6 +31,12 @@ public class EnemyController : MonoBehaviour
         {
             rb.gravityScale = 0;
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        }
+
+        // --- NEW: Setup the Line defaults (optional but safe) ---
+        if (laserLine != null)
+        {
+            laserLine.positionCount = 2; 
         }
     }
 
@@ -48,22 +56,37 @@ public class EnemyController : MonoBehaviour
     {
         // Calculate Angle
         float angleOffset = Mathf.Sin(Time.time * scanSpeed) * scanWidth;
-        float finalAngle = 360f + angleOffset; // -90 is DOWN in Unity 2D
+        float finalAngle = 360f + angleOffset; 
 
         eyePivot.localRotation = Quaternion.Euler(0, 0, finalAngle);
-
-        // --- FIXED LOGIC STARTS HERE ---
-
-        // 1. Single Raycast (Removed the duplicate 'hit' variable)
+                
+        // 1. Single Raycast 
         RaycastHit2D hit = Physics2D.Raycast(eyePivot.position, eyePivot.right, viewDistance, hitLayers);
+
+        // --- NEW: UPDATE THE VISUAL LASER ---
+        if (laserLine != null)
+        {
+            // Start the line at the eye
+            laserLine.SetPosition(0, eyePivot.position);
+
+            if (hit.collider != null)
+            {
+                // If we hit something (Wall or Player), stop the laser there
+                laserLine.SetPosition(1, hit.point);
+            }
+            else
+            {
+                // If we hit nothing, shoot the laser to max distance
+                laserLine.SetPosition(1, eyePivot.position + eyePivot.right * viewDistance);
+            }
+        }
+        // ------------------------------------
 
         // 2. Check what we hit
         if (hit.collider != null)
         {
-            // Only kill if the thing we hit is tagged "Player"
             if (hit.collider.CompareTag("Player"))
             {
-                // Ensure this matches your actual script name (SimplePlayer vs Movement)
                 Movement playerScript = hit.collider.GetComponent<Movement>();
 
                 if (playerScript != null)

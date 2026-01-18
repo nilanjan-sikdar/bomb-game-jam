@@ -107,6 +107,14 @@ public class Movement : MonoBehaviour
         // Trigger Death animation
         anim.SetTrigger("Death");
 
+        // 🔑 SHOW PAUSE MENU ON DEATH
+        PauseMenu pauseMenu = Object.FindFirstObjectByType<PauseMenu>();
+        if (pauseMenu != null)
+        {
+            pauseMenu.ShowDeathMenu();
+        }
+
+
         Destroy(gameObject, 1.3f);
     }
 

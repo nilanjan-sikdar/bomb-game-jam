@@ -28,4 +28,10 @@ public class PauseMenu : MonoBehaviour
     {
         SceneManager.LoadScene("HomeMenuScene");
     }
+
+    public void ShowDeathMenu()
+    {
+        pauseMenu.SetActive(true);
+        Time.timeScale = 0f;
+    }
 }

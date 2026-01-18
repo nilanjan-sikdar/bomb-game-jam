@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
@@ -17,7 +17,8 @@ public class Movement : MonoBehaviour
     private float horizontalInput;
     private bool isGrounded;
     private bool isFacingRight = true;
-    private bool isDead = false; // New flag to stop movement
+    private bool isDead = false;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -26,8 +27,8 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
-        if (isDead) return; // 2. IGNORE INPUT if dead
-        // Input
+        if (isDead) return;
+
         horizontalInput = Input.GetAxisRaw("Horizontal");
 
         if (Input.GetButtonDown("Jump") && isGrounded)
@@ -35,40 +36,39 @@ public class Movement : MonoBehaviour
             PerformJump();
         }
 
-        // Animation + Flip
         UpdateAnimations();
         FlipSprite();
     }
 
     void FixedUpdate()
     {
-        if (isDead) return; // 1. STOP MOVING if dead
-        // Ground check
+        if (isDead) return;
+
         isGrounded = Physics2D.OverlapCircle(
             groundCheck.position,
             groundCheckRadius,
             groundLayer
         );
 
-        // Movement
         rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
     }
 
+    public bool IsPlayerMoving()
+    {
+        return Mathf.Abs(horizontalInput) > 0.01f || !isGrounded;
+    }
+
+
     void PerformJump()
     {
-        if (isDead) return; // 3. IGNORE JUMP if dead
+        if (isDead) return;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
     }
 
     void UpdateAnimations()
     {
-        // Run / Idle
         anim.SetFloat("Speed", Mathf.Abs(horizontalInput));
-
-        // Jumping state (TRUE when NOT grounded)
         anim.SetBool("isJumping", !isGrounded);
-
-        // Vertical velocity (useful for jump/fall blend trees)
         anim.SetFloat("yVelocity", rb.linearVelocity.y);
     }
 
@@ -84,29 +84,38 @@ public class Movement : MonoBehaviour
         }
     }
 
+    // 🔥 SPIKE DETECTION (NEW)
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Spikes"))
+        {
+            Die();
+        }
+    }
+
     public void Die()
     {
-        if (isDead) return; // Prevent dying twice
+        if (isDead) return;
         isDead = true;
 
-        Debug.Log("Player Died!");
-
-        // Stop all physics movement immediately
         rb.linearVelocity = Vector2.zero;
-        rb.gravityScale = 0; // Optional: Stop falling
+        rb.gravityScale = 0;
 
-        // Play the Animation
-        if (anim != null) anim.SetTrigger("Death");
+        // 🔑 FORCE EXIT JUMP STATE
+        anim.SetBool("isJumping", false);
 
-        // Destroy player after 1 second (adjust time to match your animation length)
+        // Play Death
+        anim.SetTrigger("Death");
+
         Destroy(gameObject, 1.3f);
     }
-        void OnDrawGizmos()
+
+    void OnDrawGizmos()
+    {
+        if (groundCheck != null)
         {
-            if (groundCheck != null)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
-            }
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
+    }
 }

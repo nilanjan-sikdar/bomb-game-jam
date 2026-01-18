@@ -101,10 +101,10 @@ public class Movement : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0;
 
-        // 🔑 FORCE EXIT JUMP STATE
+        // Force exit jump/fall states
         anim.SetBool("isJumping", false);
 
-        // Play Death
+        // Trigger Death animation
         anim.SetTrigger("Death");
 
         Destroy(gameObject, 1.3f);

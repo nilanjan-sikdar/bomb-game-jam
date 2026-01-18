@@ -11,6 +11,12 @@ public class Movement : MonoBehaviour
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip jumpSFX;
+    [SerializeField] private AudioClip deathSFX;
+
+
     private Rigidbody2D rb;
     private Animator anim;
 
@@ -63,6 +69,9 @@ public class Movement : MonoBehaviour
     {
         if (isDead) return;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
+
+        if (jumpSFX != null)
+            audioSource.PlayOneShot(jumpSFX);
     }
 
     void UpdateAnimations()
@@ -107,7 +116,10 @@ public class Movement : MonoBehaviour
         // Trigger Death animation
         anim.SetTrigger("Death");
 
-        // 🔑 SHOW PAUSE MENU ON DEATH
+        if (deathSFX != null)
+            audioSource.PlayOneShot(deathSFX);
+
+        // 🔥 SHOW PAUSE MENU
         PauseMenu pauseMenu = Object.FindFirstObjectByType<PauseMenu>();
         if (pauseMenu != null)
         {
@@ -120,7 +132,7 @@ public class Movement : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (groundCheck != null)
+        if (groundCheck != null)    
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
